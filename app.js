@@ -1,6 +1,69 @@
 const canvas = document.getElementById("myCanvas");
 const ctx = canvas.getContext("2d");
 
+class Paddle {
+    #rightPressed = false;
+    #leftPressed = false;
+
+    constructor(width, x) {
+        this.width = width;
+        this.height = 15;
+        this.x = x;
+        this.speed = 7;
+
+        this.#setUpListeners();
+    }
+
+    draw() {
+        ctx.beginPath();
+        ctx.rect(this.x - this.width/2, canvas.height - this.height, this.width, this.height);
+        ctx.fillStyle = "#0095DD";
+        ctx.fill();
+        ctx.closePath();
+    }
+
+    tick() {
+        if (this.#rightPressed) {
+            this.x += this.speed;
+            if (this.x > canvas.width - this.width / 2) {
+                this.x = canvas.width - this.width / 2;
+            }
+        }
+        if (this.#leftPressed) {
+            this.x -= this.speed;
+            if (this.x < this.width / 2) {
+                this.x = this.width / 2;
+            }
+        }
+    }
+
+    #setUpListeners() {
+        const that = this;
+        document.addEventListener("keydown", function(e) {that.#keyDownHandler(e)}, false);
+        document.addEventListener("keyup", function(e) {that.#keyUpHandler(e)}, false);
+    }
+
+    #keyDownHandler(e) {
+        if(e.key == "Right" || e.key == "ArrowRight") {
+            this.#rightPressed = true;
+        }
+        else if(e.key == "Left" || e.key == "ArrowLeft") {
+            this.#leftPressed = true;
+        }
+    }
+    
+    #keyUpHandler(e) {
+        if(e.key == "Right" || e.key == "ArrowRight") {
+            this.#rightPressed = false;
+        }
+        else if(e.key == "Left" || e.key == "ArrowLeft") {
+            this.#leftPressed = false;
+        }
+    }
+    
+    
+}
+
 class Ball {
     constructor(x, y) {
         this.x = x;
@@ -39,11 +102,15 @@ class Ball {
     }
 }
 
-const ball = new Ball(canvas.width/2, canvas.height-30);
+const ball = new Ball(canvas.width / 2, canvas.height - 30);
+const paddle = new Paddle(75, canvas.width / 2);
 
 function tick() {
+    paddle.tick();
+    ball.tick();
+
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ball.draw();
-    ball.tick();
+    paddle.draw();
 }
 setInterval(tick, 10);
