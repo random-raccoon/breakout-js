@@ -1,33 +1,49 @@
 const canvas = document.getElementById("myCanvas");
 const ctx = canvas.getContext("2d");
 
-const ballRadius = 10;
-let x = canvas.width/2;
-let y = canvas.height-30;
-let dx = 2;
-let dy = -2;
+class Ball {
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.dx = 2;
+        this.dy = -2;
+        this.radius = 10;
+    }
 
-function drawBall() {
-    ctx.beginPath();
-    ctx.arc(x, y, ballRadius, 0, Math.PI*2);
-    ctx.fillStyle = "#0095DD";
-    ctx.fill();
-    ctx.closePath();
+    draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI*2);
+        ctx.fillStyle = "#0095DD";
+        ctx.fill();
+        ctx.closePath();
+    }
+
+    tick() {
+        this.x += this.dx;
+        this.y += this.dy;
+        // TODO: tighten this up a bit, especially for high speeds.
+        if (this.x > canvas.width - this.radius) {
+            this.x = canvas.width - this.radius;
+            this.dx = -this.dx;
+        } else if (this.x < this.radius) {
+            this.x = this.radius;
+            this.dx = -this.dx;
+        }
+        if (this.y > canvas.height - this.radius) {
+            this.y = canvas.height - this.radius;
+            this.dy = -this.dy;
+        } else if (this.y < this.radius) {
+            this.y = this.radius;
+            this.dy = -this.dy;
+        }
+    }
 }
 
-function draw() {
+const ball = new Ball(canvas.width/2, canvas.height-30);
+
+function tick() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    drawBall();
-
-    // TODO: Improve bouncing.
-    if(x + dx > canvas.width - ballRadius || x + dx < ballRadius) {
-        dx = -dx;
-    }
-    if(y + dy > canvas.height - ballRadius || y + dy < ballRadius) {
-        dy = -dy;
-    }
-    x += dx;
-    y += dy;
+    ball.draw();
+    ball.tick();
 }
-setInterval(draw, 10);
+setInterval(tick, 10);
