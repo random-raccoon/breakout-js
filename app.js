@@ -1,22 +1,47 @@
-const canvas = document.getElementById("myCanvas");
-const ctx = canvas.getContext("2d");
+class Game {
+    constructor(canvas) {
+        this.canvas = canvas;
+        this.ctx = canvas.getContext("2d");
+
+        this.width = this.canvas.width;
+        this.height = this.canvas.height;
+    }
+
+    start() {
+        this.ball = new Ball(this.width / 2, this.height - 30);
+        this.paddle = new Paddle(75, this.width / 2, this.height);
+        
+        this.interval = setInterval(() => this.tick(), 10);
+    }
+    
+    tick() {
+        this.paddle.tick();
+        this.ball.tick();
+        this.ball.checkCollisions();
+    
+        this.ctx.clearRect(0, 0, this.width, this.height);
+        this.ball.draw(this.ctx);
+        this.paddle.draw(this.ctx);
+    }   
+}
 
 class Paddle {
     #rightPressed = false;
     #leftPressed = false;
 
-    constructor(width, x) {
+    constructor(width, x, y) {
         this.width = width;
         this.height = 15;
         this.x = x;
+        this.y = y;
         this.speed = 7;
 
         this.#setUpListeners();
     }
 
-    draw() {
+    draw(ctx) {
         ctx.beginPath();
-        ctx.rect(this.x - this.width/2, canvas.height - this.height, this.width, this.height);
+        ctx.rect(this.x - this.width/2, this.y - this.height, this.width, this.height);
         ctx.fillStyle = "#0095DD";
         ctx.fill();
         ctx.closePath();
@@ -73,7 +98,7 @@ class Ball {
         this.radius = 10;
     }
 
-    draw() {
+    draw(ctx) {
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.radius, 0, Math.PI*2);
         ctx.fillStyle = "#0095DD";
@@ -84,7 +109,10 @@ class Ball {
     tick() {
         this.x += this.dx;
         this.y += this.dy;
-        // TODO: tighten this up a bit, especially for high speeds.
+    }
+
+    checkCollisions() {
+        // TODO: All of this.
         if (this.x > canvas.width - this.radius) {
             this.x = canvas.width - this.radius;
             this.dx = -this.dx;
@@ -102,15 +130,6 @@ class Ball {
     }
 }
 
-const ball = new Ball(canvas.width / 2, canvas.height - 30);
-const paddle = new Paddle(75, canvas.width / 2);
-
-function tick() {
-    paddle.tick();
-    ball.tick();
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ball.draw();
-    paddle.draw();
-}
-setInterval(tick, 10);
+const canvas = document.getElementById("myCanvas");
+let game = new Game(canvas);
+game.start();
